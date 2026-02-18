@@ -117,4 +117,42 @@ const TRICKS = [
   }
 ];
 
-if (typeof module !== 'undefined') module.exports = TRICKS;
+// Quiz questions per trick
+const QUIZ_QUESTIONS = {
+  ollie: [
+    { q: 'What approximate upward force does the tail snap generate?', options: ['~400N', '~800N', '~1400N', '~2200N'], answer: 2, explain: 'The tail acts as a lever — the ground pushes up ~1400N on the nose through the rear-wheel fulcrum.' },
+    { q: 'How long is a typical ollie airtime?', options: ['0.1–0.2s', '0.4–0.6s', '0.8–1.0s', '1.5–2.0s'], answer: 1, explain: 'An ollie typically keeps you airborne for 0.4–0.6 seconds — enough to clear a curb or small gap.' },
+    { q: 'What force multiplier hits your legs on landing?', options: ['1–2×', '3–5×', '8–10×', '15×'], answer: 1, explain: 'Landing absorbs 3–5× your body weight, which is why bent knees are crucial for shock absorption.' },
+    { q: 'What type of lever is the tail snap?', options: ['First-class', 'Second-class', 'Third-class', 'Not a lever'], answer: 2, explain: 'The tail is a third-class lever: fulcrum at the rear wheels, effort from your back foot, load at the nose.' }
+  ],
+  kickflip: [
+    { q: 'How fast does the board spin during a kickflip?', options: ['~200°/s', '~400°/s', '~600°/s', '~1000°/s'], answer: 2, explain: 'The board rotates at roughly 600°/s along its longitudinal axis during a clean kickflip.' },
+    { q: 'What lateral force does the flick apply?', options: ['~20N', '~50N', '~80N', '~150N'], answer: 2, explain: 'The front foot flicks off the heel-side edge with about 80N of lateral force to initiate the spin.' },
+    { q: 'What keeps the flip rotation stable?', options: ['Air resistance', 'Gyroscopic stability', 'Grip tape', 'Truck weight'], answer: 1, explain: 'Once spinning, the board acts like a gyroscope — angular momentum resists wobble and keeps the flip clean.' }
+  ],
+  'pop-shuvit': [
+    { q: 'How many degrees does the board rotate in a pop shove-it?', options: ['90°', '180°', '270°', '360°'], answer: 1, explain: 'A standard pop shove-it rotates the board 180° around the vertical (yaw) axis.' },
+    { q: 'What is the approximate scoop force?', options: ['~50N', '~100N', '~200N', '~400N'], answer: 2, explain: 'The back foot scoops with about 200N to spin the board beneath you.' },
+    { q: 'What axis does the board rotate around?', options: ['Roll (longitudinal)', 'Pitch (lateral)', 'Yaw (vertical)', 'All three'], answer: 2, explain: 'The shove-it is pure yaw rotation — the board spins horizontally with no flip.' }
+  ],
+  manual: [
+    { q: 'What is the balance angle range for a manual?', options: ['5–10°', '15–25°', '35–45°', '50–60°'], answer: 1, explain: 'The sweet spot is 15–25° — too low and the front wheels touch, too high and you fall backward.' },
+    { q: 'How tight is the center-of-gravity tolerance?', options: ['±10cm', '±5cm', '±2cm', '±0.5cm'], answer: 2, explain: 'Your center of gravity must stay within a ±2cm window above the rear axle — like an inverted pendulum.' },
+    { q: 'A manual is equivalent to what physics problem?', options: ['Projectile motion', 'Inverted pendulum', 'Simple harmonic oscillator', 'Orbital mechanics'], answer: 1, explain: 'A manual is an inverted pendulum — inherently unstable, requiring constant micro-corrections.' }
+  ],
+  'drop-in': [
+    { q: 'What speed do you reach dropping into a 6ft quarter?', options: ['~8 km/h', '~16 km/h', '~24 km/h', '~35 km/h'], answer: 2, explain: 'From v = √(2gh): about 6 m/s or ~24 km/h at the bottom of a 6ft (1.8m) quarter pipe.' },
+    { q: 'What g-force do you feel at the bottom of the transition?', options: ['~1g', '~1.5g', '~2.5g', '~4g'], answer: 2, explain: 'Centripetal acceleration at the bottom of the curved transition adds to gravity, giving about 2.5g total.' },
+    { q: 'What energy conversion occurs during a drop-in?', options: ['KE → PE', 'PE → KE', 'PE → Heat', 'KE → Heat'], answer: 1, explain: '100% potential energy (mgh) converts to kinetic energy (½mv²), minus small friction losses.' }
+  ],
+  heelflip: [
+    { q: 'Compared to a kickflip, which direction does a heelflip spin?', options: ['Same direction', 'Opposite direction', 'Vertical', 'No spin'], answer: 1, explain: 'The heelflip is the mirror image of a kickflip — same roll axis, opposite (toe-side) rotation direction.' },
+    { q: 'What is the approximate heelflip rotation rate?', options: ['~300°/s', '~550°/s', '~800°/s', '~1200°/s'], answer: 1, explain: 'Heelflips spin at about 550°/s — slightly slower than kickflips because the heel is less dexterous than the toe-side flick.' }
+  ],
+  grind: [
+    { q: 'What keeps you locked onto the rail during a grind?', options: ['Magnetism', 'Gravity + truck geometry', 'Grip tape', 'Speed alone'], answer: 1, explain: 'The concave truck hanger locks onto the rail, and gravity keeps downward pressure. The truck geometry creates a natural channel that resists lateral movement.' },
+    { q: 'What primarily slows you down during a grind?', options: ['Air drag', 'Kinetic friction', 'Rolling resistance', 'Gravity'], answer: 1, explain: 'Metal-on-metal (or metal-on-concrete) kinetic friction is the primary decelerating force during a grind, with a coefficient of ~0.3–0.5.' }
+  ]
+};
+
+if (typeof module !== 'undefined') module.exports = { TRICKS, QUIZ_QUESTIONS };

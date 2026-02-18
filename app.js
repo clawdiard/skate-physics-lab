@@ -890,4 +890,103 @@
   setupCanvas();
   setupEnergyCanvas();
   selectTrick(TRICKS[0]);
+
+  // === QUIZ MODE ===
+  const quizBtn = document.getElementById('quizBtn');
+  const quizPanel = document.getElementById('quizPanel');
+  const quizContent = document.getElementById('quizContent');
+  const quizScoreEl = document.getElementById('quizScore');
+  let quizActive = false;
+  let quizCorrect = 0;
+  let quizTotal = 0;
+  let quizQueue = [];
+  let quizAnswered = false;
+
+  function toggleQuiz() {
+    quizActive = !quizActive;
+    quizBtn.classList.toggle('quiz-btn-active', quizActive);
+    quizPanel.style.display = quizActive ? 'block' : 'none';
+    if (quizActive) {
+      quizCorrect = 0; quizTotal = 0;
+      quizScoreEl.textContent = '0/0';
+      loadQuizForTrick();
+    }
+  }
+
+  function loadQuizForTrick() {
+    const qs = QUIZ_QUESTIONS[currentTrick.id] || [];
+    quizQueue = qs.map((q, i) => ({ ...q, idx: i })).sort(() => Math.random() - 0.5);
+    showNextQuestion();
+  }
+
+  function showNextQuestion() {
+    quizAnswered = false;
+    if (quizQueue.length === 0) {
+      quizContent.innerHTML = `<div class="quiz-question">✅ All questions for <b>${currentTrick.name}</b> complete! Score: ${quizCorrect}/${quizTotal}</div><button class="quiz-next" style="display:inline-block" onclick="document.getElementById('quizPanel').querySelector('.quiz-next').style.display='none'">Play animation to see the physics →</button>`;
+      // Auto play animation
+      if (!animating) playBtn.click();
+      return;
+    }
+    const q = quizQueue.shift();
+    let html = `<div class="quiz-question">${q.q}</div><div class="quiz-options">`;
+    q.options.forEach((opt, i) => {
+      html += `<div class="quiz-option" data-idx="${i}" data-correct="${q.answer}" data-explain="${encodeURIComponent(q.explain)}">${opt}</div>`;
+    });
+    html += `</div><div class="quiz-explanation" id="quizExplain"></div><button class="quiz-next" id="quizNext">Next →</button>`;
+    quizContent.innerHTML = html;
+    // Bind clicks
+    quizContent.querySelectorAll('.quiz-option').forEach(el => {
+      el.addEventListener('click', handleQuizAnswer);
+    });
+    document.getElementById('quizNext').addEventListener('click', showNextQuestion);
+  }
+
+  function handleQuizAnswer(e) {
+    if (quizAnswered) return;
+    quizAnswered = true;
+    const el = e.currentTarget;
+    const chosen = parseInt(el.dataset.idx);
+    const correct = parseInt(el.dataset.correct);
+    const explain = decodeURIComponent(el.dataset.explain);
+    quizTotal++;
+    const options = quizContent.querySelectorAll('.quiz-option');
+    options.forEach(o => {
+      o.classList.add('disabled');
+      if (parseInt(o.dataset.idx) === correct) o.classList.add('correct', 'reveal');
+    });
+    if (chosen === correct) {
+      quizCorrect++;
+      el.classList.add('correct');
+    } else {
+      el.classList.add('wrong');
+    }
+    quizScoreEl.textContent = `${quizCorrect}/${quizTotal}`;
+    const explainEl = document.getElementById('quizExplain');
+    explainEl.textContent = explain;
+    explainEl.style.display = 'block';
+    document.getElementById('quizNext').style.display = 'inline-block';
+    // Auto play animation to reveal
+    if (!animating) playBtn.click();
+  }
+
+  quizBtn.onclick = toggleQuiz;
+
+  // Reload quiz when trick changes
+  const origSelectTrick = selectTrick;
+  selectTrick = function(t) {
+    origSelectTrick(t);
+    if (quizActive) loadQuizForTrick();
+  };
+  // Re-bind nav buttons
+  nav.querySelectorAll('button').forEach((btn, i) => {
+    btn.onclick = () => selectTrick(TRICKS[i]);
+  });
+
+  // Q key shortcut
+  document.addEventListener('keydown', e => {
+    if (e.key === 'q' || e.key === 'Q') {
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+      toggleQuiz();
+    }
+  });
 })();

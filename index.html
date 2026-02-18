@@ -38,6 +38,22 @@ canvas{width:100%;display:block;background:#08080d}
 .stat .lbl{font-size:.75rem;color:var(--dim);margin-top:.2rem}
 footer{text-align:center;padding:2rem;color:var(--dim);font-size:.8rem}
 footer a{color:var(--accent)}
+.quiz-panel{background:var(--surface);border:1px solid var(--accent);border-radius:16px;padding:1.5rem;margin-top:1rem;position:relative}
+.quiz-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem}
+.quiz-header span:first-child{font-size:1.2rem;font-weight:700;color:var(--accent)}
+.quiz-score{font-size:1.1rem;color:var(--accent2);font-weight:700}
+.quiz-question{font-size:1rem;color:var(--text);margin-bottom:1rem;line-height:1.5}
+.quiz-options{display:grid;grid-template-columns:1fr 1fr;gap:.6rem}
+.quiz-option{background:var(--bg);border:2px solid var(--border);border-radius:10px;padding:.8rem 1rem;cursor:pointer;color:var(--text);font-size:.95rem;transition:all .2s;text-align:center}
+.quiz-option:hover{border-color:var(--accent);color:var(--accent)}
+.quiz-option.correct{border-color:#4caf50;background:rgba(76,175,80,.15);color:#4caf50}
+.quiz-option.wrong{border-color:#ff5252;background:rgba(255,82,82,.15);color:#ff5252}
+.quiz-option.disabled{pointer-events:none;opacity:.7}
+.quiz-option.reveal{border-color:#4caf50;color:#4caf50}
+.quiz-explanation{margin-top:1rem;padding:1rem;background:var(--bg);border-radius:8px;color:var(--dim);font-size:.9rem;line-height:1.5;display:none}
+.quiz-next{background:var(--accent);color:#000;border:none;padding:.6rem 1.5rem;border-radius:8px;cursor:pointer;font-weight:600;margin-top:1rem;display:none;font-size:.9rem}
+.quiz-next:hover{background:#33ecff}
+.quiz-btn-active{background:var(--accent) !important;color:#000 !important;border-color:var(--accent) !important;box-shadow:0 0 12px rgba(0,229,255,.3)}
 </style>
 </head>
 <body>
@@ -59,8 +75,15 @@ footer a{color:var(--accent)}
 <button id="stepBackBtn" title="Step back (← key)">⏮</button>
 <button id="stepFwdBtn" title="Step forward (→ key)">⏭</button>
 <button id="resetBtn">↺ Reset</button>
+<button id="quizBtn" title="Toggle Quiz Mode (Q key)">🧠 Quiz</button>
 <span id="frameIndicator" style="color:var(--accent);font-size:.8rem;font-family:monospace;min-width:100px"></span>
 </div>
+</div>
+
+<!-- Quiz Mode Overlay -->
+<div id="quizPanel" class="quiz-panel" style="display:none">
+<div class="quiz-header"><span>🧠 Quiz Mode</span><span id="quizScore" class="quiz-score">0/0</span></div>
+<div id="quizContent"></div>
 </div>
 
 <div class="canvas-wrap" style="margin-top:1rem">
