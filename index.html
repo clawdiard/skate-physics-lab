@@ -24,6 +24,9 @@ canvas{width:100%;display:block;background:#08080d}
 .controls input[type=range]{accent-color:var(--accent);width:120px}
 .controls button{background:var(--accent);color:#000;border:none;padding:.5rem 1.2rem;border-radius:6px;cursor:pointer;font-weight:600;font-size:.85rem}
 .controls button:hover{background:#33ecff}
+.controls button.slow-mo-active{background:#ff9800;color:#000;box-shadow:0 0 12px rgba(255,152,0,.4)}
+.frame-hint{position:absolute;bottom:50px;left:50%;transform:translateX(-50%);color:var(--dim);font-size:.75rem;opacity:0;transition:opacity .3s;pointer-events:none}
+.frame-hint.visible{opacity:1}
 .info-panel{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:1.5rem;margin-top:1rem}
 .info-panel h2{color:var(--accent);font-size:1.3rem;margin-bottom:.8rem}
 .info-panel h3{color:var(--accent2);font-size:1rem;margin:1rem 0 .4rem}
@@ -52,7 +55,11 @@ footer a{color:var(--accent)}
 <label>Speed <input type="range" id="speedSlider" min="0.2" max="3" step="0.1" value="1"></label>
 <label>Mass (kg) <input type="range" id="massSlider" min="40" max="100" step="5" value="70"></label>
 <button id="playBtn">▶ Play</button>
+<button id="slowMoBtn" title="Toggle slow motion (S key)">🐢 Slow-Mo</button>
+<button id="stepBackBtn" title="Step back (← key)">⏮</button>
+<button id="stepFwdBtn" title="Step forward (→ key)">⏭</button>
 <button id="resetBtn">↺ Reset</button>
+<span id="frameIndicator" style="color:var(--accent);font-size:.8rem;font-family:monospace;min-width:100px"></span>
 </div>
 </div>
 

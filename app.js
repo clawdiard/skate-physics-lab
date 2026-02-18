@@ -7,6 +7,10 @@
   const infoPanel = document.getElementById('infoPanel');
   const playBtn = document.getElementById('playBtn');
   const resetBtn = document.getElementById('resetBtn');
+  const slowMoBtn = document.getElementById('slowMoBtn');
+  const stepBackBtn = document.getElementById('stepBackBtn');
+  const stepFwdBtn = document.getElementById('stepFwdBtn');
+  const frameIndicator = document.getElementById('frameIndicator');
   const speedSlider = document.getElementById('speedSlider');
   const massSlider = document.getElementById('massSlider');
 
@@ -15,6 +19,9 @@
   let animTime = 0;
   let animFrame = null;
   let lastTimestamp = 0;
+  let slowMo = false;
+  const SLOW_MO_FACTOR = 0.2;
+  const FRAME_STEP = 1 / 60; // ~16.7ms per frame step
 
   // Hi-DPI
   function setupCanvas() {
@@ -476,6 +483,7 @@
     if (renderer) renderer(animTime);
     // Phase timeline
     drawTimeline();
+    updateFrameIndicator();
   }
 
   function drawTimeline() {
@@ -502,7 +510,7 @@
 
   function animate(timestamp) {
     if (!lastTimestamp) lastTimestamp = timestamp;
-    const dt = (timestamp - lastTimestamp) / 1000 * parseFloat(speedSlider.value);
+    const dt = (timestamp - lastTimestamp) / 1000 * parseFloat(speedSlider.value) * (slowMo ? SLOW_MO_FACTOR : 1);
     lastTimestamp = timestamp;
     animTime += dt;
     const total = totalDuration();
@@ -512,8 +520,46 @@
       playBtn.textContent = '▶ Play';
     }
     drawFrame();
+    updateFrameIndicator();
     if (animating) animFrame = requestAnimationFrame(animate);
   }
+
+  function updateFrameIndicator() {
+    const total = totalDuration();
+    const frame = Math.round(animTime * 60);
+    const totalFrames = Math.round(total * 60);
+    const pct = total > 0 ? ((animTime / total) * 100).toFixed(1) : '0.0';
+    frameIndicator.textContent = `${frame}/${totalFrames}f · ${pct}%${slowMo ? ' 🐢' : ''}`;
+  }
+
+  function stepFrame(direction) {
+    if (animating) {
+      animating = false;
+      playBtn.textContent = '▶ Play';
+      cancelAnimationFrame(animFrame);
+    }
+    const total = totalDuration();
+    animTime = Math.max(0, Math.min(total, animTime + direction * FRAME_STEP));
+    drawFrame();
+    updateFrameIndicator();
+  }
+
+  slowMoBtn.onclick = () => {
+    slowMo = !slowMo;
+    slowMoBtn.classList.toggle('slow-mo-active', slowMo);
+    updateFrameIndicator();
+  };
+
+  stepBackBtn.onclick = () => stepFrame(-1);
+  stepFwdBtn.onclick = () => stepFrame(1);
+
+  document.addEventListener('keydown', (e) => {
+    if (e.target.tagName === 'INPUT') return;
+    if (e.key === 'ArrowLeft') { e.preventDefault(); stepFrame(-1); }
+    else if (e.key === 'ArrowRight') { e.preventDefault(); stepFrame(1); }
+    else if (e.key === 's' || e.key === 'S') { slowMoBtn.click(); }
+    else if (e.key === ' ') { e.preventDefault(); playBtn.click(); }
+  });
 
   playBtn.onclick = () => {
     if (animating) {
