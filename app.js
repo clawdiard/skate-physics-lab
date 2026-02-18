@@ -989,4 +989,58 @@
       toggleQuiz();
     }
   });
+
+  // === TOUCH CONTROLS ===
+  (function initTouch() {
+    const swipeHint = document.getElementById('swipeHint');
+    let touchStartX = 0, touchStartY = 0, touchStartTime = 0;
+    const SWIPE_MIN = 50; // px
+    const TAP_MAX = 15;   // px
+    const TAP_TIME = 300; // ms
+
+    function currentTrickIndex() {
+      return TRICKS.findIndex(t => t.id === currentTrick.id);
+    }
+
+    function showHint(text) {
+      if (!swipeHint) return;
+      swipeHint.textContent = text;
+      swipeHint.classList.add('visible');
+      clearTimeout(swipeHint._timer);
+      swipeHint._timer = setTimeout(() => swipeHint.classList.remove('visible'), 600);
+    }
+
+    canvas.addEventListener('touchstart', function(e) {
+      const touch = e.touches[0];
+      touchStartX = touch.clientX;
+      touchStartY = touch.clientY;
+      touchStartTime = Date.now();
+    }, { passive: true });
+
+    canvas.addEventListener('touchend', function(e) {
+      const touch = e.changedTouches[0];
+      const dx = touch.clientX - touchStartX;
+      const dy = touch.clientY - touchStartY;
+      const dt = Date.now() - touchStartTime;
+      const absDx = Math.abs(dx), absDy = Math.abs(dy);
+
+      // Horizontal swipe — switch trick
+      if (absDx > SWIPE_MIN && absDx > absDy * 1.5) {
+        const idx = currentTrickIndex();
+        if (dx < 0 && idx < TRICKS.length - 1) {
+          selectTrick(TRICKS[idx + 1]);
+          showHint(TRICKS[idx + 1].name + ' →');
+        } else if (dx > 0 && idx > 0) {
+          selectTrick(TRICKS[idx - 1]);
+          showHint('← ' + TRICKS[idx - 1].name);
+        }
+        return;
+      }
+
+      // Tap — toggle play/pause
+      if (absDx < TAP_MAX && absDy < TAP_MAX && dt < TAP_TIME) {
+        playBtn.click();
+      }
+    }, { passive: true });
+  })();
 })();

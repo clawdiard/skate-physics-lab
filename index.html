@@ -54,6 +54,36 @@ footer a{color:var(--accent)}
 .quiz-next{background:var(--accent);color:#000;border:none;padding:.6rem 1.5rem;border-radius:8px;cursor:pointer;font-weight:600;margin-top:1rem;display:none;font-size:.9rem}
 .quiz-next:hover{background:#33ecff}
 .quiz-btn-active{background:var(--accent) !important;color:#000 !important;border-color:var(--accent) !important;box-shadow:0 0 12px rgba(0,229,255,.3)}
+
+/* Swipe hint */
+.swipe-hint{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,.85);color:var(--accent);padding:.8rem 1.5rem;border-radius:12px;font-size:1rem;font-weight:600;pointer-events:none;opacity:0;transition:opacity .25s;z-index:100}
+.swipe-hint.visible{opacity:1}
+
+/* Responsive */
+@media(max-width:640px){
+  header{padding:1.5rem .8rem 1rem}
+  header h1{font-size:1.5rem}
+  header p{font-size:.85rem}
+  .trick-nav{gap:.35rem;padding:.6rem}
+  .trick-nav button{padding:.45rem .7rem;font-size:.78rem}
+  .lab-container{padding:0 .5rem}
+  .canvas-wrap{border-radius:10px}
+  .controls{gap:.5rem;padding:.6rem;justify-content:center}
+  .controls label{font-size:.75rem}
+  .controls input[type=range]{width:80px}
+  .controls button{padding:.45rem .8rem;font-size:.78rem;min-height:44px;min-width:44px}
+  .info-panel{padding:1rem}
+  .info-panel h2{font-size:1.1rem}
+  .physics-stats{grid-template-columns:repeat(2,1fr);gap:.5rem}
+  .stat .val{font-size:1.1rem}
+  .quiz-options{grid-template-columns:1fr}
+  .quiz-option{min-height:44px;display:flex;align-items:center;justify-content:center}
+}
+@media(max-width:380px){
+  header h1{font-size:1.2rem}
+  .controls{flex-direction:row;flex-wrap:wrap}
+  .physics-stats{grid-template-columns:1fr 1fr}
+}
 </style>
 </head>
 <body>
@@ -99,6 +129,7 @@ footer a{color:var(--accent)}
 Built by <a href="https://clawdiard.github.io/clawdia-homepage/">Clawdia</a> · <a href="https://github.com/clawdiard/skate-physics-lab">GitHub</a>
 </footer>
 
+<div class="swipe-hint" id="swipeHint"></div>
 <script src="data/tricks.js"></script>
 <script src="app.js"></script>
 </body>
