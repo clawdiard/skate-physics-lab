@@ -425,6 +425,147 @@
       drawLabel(cx, 30, currentTrick.phases[index].name);
     },
 
+    heelflip(t) {
+      const groundY = 340;
+      drawGround(groundY);
+      const { index, progress } = getPhaseAt(t);
+      const cx = W / 2;
+      let boardY = groundY - 15, boardAngle = 0, flipAngle = 0, crouch = 0;
+
+      if (index === 0) { // Pop
+        crouch = 0.6 * (1 - progress);
+        const lift = progress * 40;
+        boardY -= lift;
+        boardAngle = -progress * 0.3;
+      } else if (index === 1) { // Heel flick
+        boardY = groundY - 55 - progress * 40;
+        boardAngle = -0.3 * (1 - progress);
+        flipAngle = -progress * Math.PI; // opposite direction from kickflip
+        crouch = 0.6;
+        drawForceArrow(cx + 20, boardY, 30, -15, 'Heel ~70N');
+      } else if (index === 2) { // Rotation
+        boardY = groundY - 95 - Math.sin(progress * Math.PI) * 20;
+        flipAngle = -(Math.PI + progress * Math.PI);
+        crouch = 0.7;
+        ctx.strokeStyle = '#7c4dff44';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.arc(cx, boardY, 30, 0, -Math.PI * 2 * progress, true);
+        ctx.stroke();
+        drawLabel(cx + 45, boardY, `${(Math.abs(flipAngle) * 180 / Math.PI) | 0}°`);
+      } else { // Catch
+        boardY = groundY - 95 + progress * 80;
+        flipAngle = -Math.PI * 2;
+        crouch = 0.7 - progress * 0.4;
+      }
+
+      drawBoard(cx, boardY, boardAngle, flipAngle);
+      drawStickFigure(cx, boardY, crouch);
+      drawLabel(cx, 30, currentTrick.phases[index].name);
+    },
+
+    treflip(t) {
+      const groundY = 340;
+      drawGround(groundY);
+      const { index, progress } = getPhaseAt(t);
+      const cx = W / 2;
+      let boardY = groundY - 15, flipAngle = 0, yawAngle = 0, crouch = 0;
+
+      if (index === 0) { // Scoop & flick
+        boardY -= progress * 50;
+        flipAngle = progress * Math.PI * 0.5;
+        yawAngle = progress * Math.PI * 0.5;
+        crouch = 0.5;
+        drawForceArrow(cx + 25, boardY + 5, 20, 15, 'Scoop');
+        drawForceArrow(cx - 20, boardY, -25, -10, 'Flick');
+      } else if (index === 1) { // Combined rotation
+        boardY = groundY - 65 - Math.sin(progress * Math.PI) * 50;
+        flipAngle = Math.PI * 0.5 + progress * Math.PI * 1.5;
+        yawAngle = Math.PI * 0.5 + progress * Math.PI * 1.5;
+        crouch = 0.8;
+        // Rotation indicators
+        drawLabel(cx + 60, boardY - 10, `Flip: ${(flipAngle * 180 / Math.PI) | 0}°`);
+        drawLabel(cx + 60, boardY + 10, `Yaw: ${(yawAngle * 180 / Math.PI) | 0}°`);
+        // Spiral trace
+        ctx.strokeStyle = '#ff525244';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        for (let i = 0; i <= progress * 40; i++) {
+          const a = (i / 40) * Math.PI * 2;
+          const r = 25 + i * 0.3;
+          const px = cx + Math.cos(a) * r;
+          const py = boardY + Math.sin(a) * r * 0.4;
+          i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+        }
+        ctx.stroke();
+      } else { // Catch
+        boardY = groundY - 65 + progress * 50;
+        flipAngle = Math.PI * 2;
+        yawAngle = Math.PI * 2;
+        crouch = 0.7 - progress * 0.4;
+      }
+
+      // Draw board with combined yaw (scale X) and flip (scale Y via flipAngle)
+      ctx.save();
+      ctx.translate(cx, boardY);
+      const scaleX = Math.cos(yawAngle);
+      ctx.scale(scaleX || 0.05, 1);
+      drawBoard(0, 0, 0, flipAngle);
+      ctx.restore();
+
+      drawStickFigure(cx, boardY, crouch);
+      drawLabel(cx, 30, currentTrick.phases[index].name);
+    },
+
+    fs180(t) {
+      const groundY = 340;
+      drawGround(groundY);
+      const { index, progress } = getPhaseAt(t);
+      const cx = W / 2;
+      let boardY = groundY - 15, yawAngle = 0, crouch = 0, bodyTilt = 0;
+
+      if (index === 0) { // Wind up
+        yawAngle = -progress * 0.3; // slight backside wind-up
+        crouch = progress * 0.5;
+        bodyTilt = -progress * 0.15;
+        drawForceArrow(cx - 30, boardY - 80, -20, 0, 'Wind up');
+      } else if (index === 1) { // Pop & rotate
+        boardY -= progress * 50;
+        yawAngle = -0.3 + progress * (Math.PI * 0.5 + 0.3);
+        crouch = 0.5;
+        bodyTilt = -0.15 + progress * 0.4;
+      } else if (index === 2) { // Air rotation
+        boardY = groundY - 65 - Math.sin(progress * Math.PI) * 40;
+        yawAngle = Math.PI * 0.5 + progress * Math.PI * 0.5;
+        crouch = 0.6;
+        bodyTilt = 0.25;
+        drawLabel(cx + 50, boardY, `${(yawAngle * 180 / Math.PI) | 0}°`);
+        // Rotation arc
+        ctx.strokeStyle = '#4caf5044';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(cx, boardY, 50, -Math.PI / 2, -Math.PI / 2 + yawAngle);
+        ctx.stroke();
+      } else { // Land switch
+        boardY = groundY - 65 + progress * 50;
+        yawAngle = Math.PI;
+        crouch = 0.6 - progress * 0.3;
+        bodyTilt = 0.25 * (1 - progress);
+        drawLabel(cx, boardY - 90, 'Switch stance!');
+      }
+
+      // Board with yaw perspective
+      ctx.save();
+      ctx.translate(cx, boardY);
+      const scaleX = Math.cos(yawAngle);
+      ctx.scale(scaleX || 0.05, 1);
+      drawBoard(0, 0, 0);
+      ctx.restore();
+
+      drawStickFigure(cx, boardY, crouch, bodyTilt);
+      drawLabel(cx, 30, currentTrick.phases[index].name);
+    },
+
     grind(t) {
       const groundY = 340;
       const { index, progress } = getPhaseAt(t);

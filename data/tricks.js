@@ -65,6 +65,44 @@ const TRICKS = [
     draw: 'dropin'
   },
   {
+    id: 'heelflip',
+    name: 'Heelflip',
+    phases: [
+      { name: 'Setup & Pop', duration: 0.15, desc: 'Ollie pop with front foot positioned toe-side, toes hanging slightly off the edge for the heel flick.' },
+      { name: 'Heel Flick', duration: 0.1, desc: 'Front foot kicks outward off the toe-side edge of the nose. The heel applies a torque that spins the board toe-side (opposite direction to a kickflip).' },
+      { name: 'Rotation', duration: 0.25, desc: 'Board flips 360° along its longitudinal axis in the toe-side direction at ~550°/s. Angular momentum keeps the flip stable.' },
+      { name: 'Catch & Land', duration: 0.15, desc: 'Feet re-contact grip tape to stop rotation. Knees compress to absorb landing forces.' }
+    ],
+    stats: { flipRate: '~550°/s', rotations: '1 full (360°)', flickForce: '~70N lateral', airTime: '0.5–0.7s' },
+    science: 'The heelflip is the <b>mirror image</b> of the kickflip — the board rotates about the same longitudinal (roll) axis but in the <b>opposite direction</b>. The heel pushes outward off the toe-side rail, creating a torque. Because the flick uses the heel (less dexterous), many skaters find heelflips slightly harder to control. The same <b>gyroscopic stability</b> principle applies — once spinning, the board resists wobble.',
+    draw: 'heelflip'
+  },
+  {
+    id: 'tre-flip',
+    name: '360 Flip (Tre Flip)',
+    phases: [
+      { name: 'Scoop & Flick', duration: 0.12, desc: 'Back foot scoops the tail backward (like a shove-it) while simultaneously popping. Front foot flicks for a kickflip. Two torques applied at once.' },
+      { name: 'Combined Rotation', duration: 0.35, desc: 'Board undergoes simultaneous 360° shove-it (yaw) and 360° kickflip (roll). The combined angular momentum creates a distinctive diagonal spinning motion.' },
+      { name: 'Catch', duration: 0.12, desc: 'Board completes both full rotations and grip tape faces up. Feet catch and stop all rotation. Precision timing is critical.' }
+    ],
+    stats: { yawRate: '~1000°/s', flipRate: '~1000°/s', scoopForce: '~250N', airTime: '0.5–0.7s' },
+    science: 'The 360 flip combines <b>two independent angular momenta</b>: a 360° yaw rotation (shove-it) and a 360° roll rotation (kickflip). The scoop provides yaw torque while the flick provides roll torque — both applied in ~0.1s. The board traces a complex <b>3D rotation path</b>. This is one of the hardest flat-ground tricks because both rotations must complete simultaneously and the catch window is tiny (~0.05s).',
+    draw: 'treflip'
+  },
+  {
+    id: 'fs180',
+    name: 'Frontside 180',
+    phases: [
+      { name: 'Wind Up', duration: 0.15, desc: 'Shoulders rotate slightly backside (away from direction of travel) to store rotational energy. Arms coil.' },
+      { name: 'Pop & Rotate', duration: 0.12, desc: 'Ollie pop while shoulders unwind frontside. Upper body leads the rotation, transferring angular momentum to the lower body and board.' },
+      { name: 'Air Rotation', duration: 0.25, desc: 'Board and body rotate 180° together. Conservation of angular momentum — the system spins as one unit. You end up riding switch (fakie).' },
+      { name: 'Land Switch', duration: 0.15, desc: 'Touch down riding backward (switch stance). Knees absorb impact. Weight shifts to maintain balance in unfamiliar stance.' }
+    ],
+    stats: { bodyYawRate: '~500°/s', rotation: '180°', windUpAngle: '~30°', airTime: '0.4–0.6s' },
+    science: 'The frontside 180 demonstrates <b>conservation of angular momentum</b> beautifully. The wind-up stores angular momentum in the upper body. During the pop, this momentum transfers through the kinetic chain (shoulders → hips → legs → board). The entire system rotates as one rigid body. "Frontside" means your front (chest) faces the direction of travel during the rotation. Landing switch requires rapid adaptation to reversed foot positioning.',
+    draw: 'fs180'
+  },
+  {
     id: 'grind-5050',
     name: '50-50 Grind',
     phases: [
