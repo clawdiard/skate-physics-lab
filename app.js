@@ -618,6 +618,165 @@
     }
   };
 
+  // --- Energy Diagram ---
+  const eCanvas = document.getElementById('energyCanvas');
+  const eCtx = eCanvas.getContext('2d');
+  const EW = 880, EH = 220;
+
+  function setupEnergyCanvas() {
+    const dpr = window.devicePixelRatio || 1;
+    const rect = eCanvas.getBoundingClientRect();
+    eCanvas.width = rect.width * dpr;
+    eCanvas.height = rect.height * dpr;
+    eCtx.scale(dpr, dpr);
+    eCanvas.style.width = rect.width + 'px';
+    eCanvas.style.height = rect.height + 'px';
+  }
+
+  function computeEnergy(t) {
+    const mass = parseFloat(massSlider.value);
+    const g = 9.8;
+    const total = totalDuration();
+    const { index, progress } = getPhaseAt(t);
+    const trick = currentTrick.draw;
+
+    // Estimate height and velocity from trick animation logic
+    let height = 0; // meters above ground
+    let velocity = 0; // m/s
+    const maxH = trick === 'dropin' ? 1.8 : trick === 'manual' ? 0.05 : (trick === 'ollie' ? 0.45 : 0.5);
+
+    if (trick === 'ollie' || trick === 'kickflip' || trick === 'heelflip') {
+      if (index === 0) { height = 0; velocity = 0; }
+      else if (index === 1) { height = progress * maxH * 0.27; velocity = progress * 3; }
+      else if (index === 2) { height = maxH * 0.27 + progress * maxH * 0.73; velocity = 3 * (1 - progress * 0.5); }
+      else if (index === 3) { height = maxH; velocity = 0.2; }
+      else { height = maxH * (1 - progress); velocity = progress * Math.sqrt(2 * g * maxH); }
+    } else if (trick === 'shuvit') {
+      if (index === 0) { height = progress * maxH * 0.5; velocity = progress * 2.5; }
+      else if (index === 1) { height = maxH * 0.5 + progress * maxH * 0.5; velocity = 1.5; }
+      else { height = maxH * (1 - progress); velocity = progress * 2.5; }
+    } else if (trick === 'manual') {
+      height = 0.02; velocity = 2;
+    } else if (trick === 'dropin') {
+      if (index === 0) { height = maxH; velocity = 0; }
+      else if (index === 1) { height = maxH * (1 - progress * 0.2); velocity = progress * 1.5; }
+      else if (index === 2) { height = maxH * 0.8 * (1 - progress); velocity = Math.sqrt(2 * g * maxH * 0.8 * progress); }
+      else { height = 0; velocity = Math.sqrt(2 * g * maxH); }
+    } else {
+      // Generic fallback
+      const mid = total / 2;
+      if (t < mid) { height = (t / mid) * maxH; velocity = 2 * (1 - t / mid); }
+      else { height = maxH * (1 - (t - mid) / (total - mid)); velocity = 2 * ((t - mid) / (total - mid)); }
+    }
+
+    const ke = 0.5 * mass * velocity * velocity;
+    const pe = mass * g * height;
+    // Thermal: energy lost to friction/impact — grows mainly on landing
+    const thermal = Math.max(0, (mass * g * maxH) - ke - pe) * 0.3 + (index >= currentTrick.phases.length - 1 ? progress * mass * g * maxH * 0.15 : 0);
+
+    return { ke, pe, thermal };
+  }
+
+  function drawEnergyDiagram() {
+    const rect = eCanvas.getBoundingClientRect();
+    const w = rect.width, h = rect.height;
+    eCtx.clearRect(0, 0, w, h);
+
+    // Background
+    eCtx.fillStyle = '#08080d';
+    eCtx.fillRect(0, 0, w, h);
+
+    const pad = { left: 55, right: 20, top: 25, bottom: 30 };
+    const plotW = w - pad.left - pad.right;
+    const plotH = h - pad.top - pad.bottom;
+    const total = totalDuration();
+    const steps = 200;
+
+    // Pre-compute all energy values
+    const data = [];
+    let maxE = 0;
+    for (let i = 0; i <= steps; i++) {
+      const t = (i / steps) * total;
+      const e = computeEnergy(t);
+      const sum = e.ke + e.pe + e.thermal;
+      if (sum > maxE) maxE = sum;
+      data.push(e);
+    }
+    maxE = maxE * 1.15 || 1;
+
+    // Grid
+    eCtx.strokeStyle = '#1e1e2e';
+    eCtx.lineWidth = 1;
+    for (let i = 0; i <= 4; i++) {
+      const y = pad.top + (i / 4) * plotH;
+      eCtx.beginPath(); eCtx.moveTo(pad.left, y); eCtx.lineTo(pad.left + plotW, y); eCtx.stroke();
+      eCtx.fillStyle = '#666';
+      eCtx.font = '10px system-ui';
+      eCtx.textAlign = 'right';
+      eCtx.fillText(((1 - i / 4) * maxE).toFixed(0) + 'J', pad.left - 6, y + 4);
+    }
+
+    // Title
+    eCtx.fillStyle = '#888';
+    eCtx.font = 'bold 12px system-ui';
+    eCtx.textAlign = 'center';
+    eCtx.fillText('Energy Diagram', w / 2, 14);
+
+    // Draw lines
+    const series = [
+      { key: 'ke', color: '#00e5ff', label: 'KE (Kinetic)' },
+      { key: 'pe', color: '#7c4dff', label: 'PE (Potential)' },
+      { key: 'thermal', color: '#ff5252', label: 'Heat (Friction)' }
+    ];
+
+    series.forEach(s => {
+      eCtx.beginPath();
+      eCtx.strokeStyle = s.color;
+      eCtx.lineWidth = 2;
+      data.forEach((d, i) => {
+        const x = pad.left + (i / steps) * plotW;
+        const y = pad.top + plotH - (d[s.key] / maxE) * plotH;
+        if (i === 0) eCtx.moveTo(x, y); else eCtx.lineTo(x, y);
+      });
+      eCtx.stroke();
+    });
+
+    // Playhead
+    const px = pad.left + (animTime / total) * plotW;
+    eCtx.strokeStyle = '#fff';
+    eCtx.lineWidth = 1;
+    eCtx.setLineDash([4, 3]);
+    eCtx.beginPath(); eCtx.moveTo(px, pad.top); eCtx.lineTo(px, pad.top + plotH); eCtx.stroke();
+    eCtx.setLineDash([]);
+
+    // Current values at playhead
+    const curE = computeEnergy(animTime);
+    const dotY = (key) => pad.top + plotH - (curE[key] / maxE) * plotH;
+    series.forEach(s => {
+      const y = dotY(s.key);
+      eCtx.fillStyle = s.color;
+      eCtx.beginPath(); eCtx.arc(px, y, 4, 0, Math.PI * 2); eCtx.fill();
+    });
+
+    // Legend
+    let lx = pad.left + 5;
+    series.forEach(s => {
+      eCtx.fillStyle = s.color;
+      eCtx.fillRect(lx, h - 18, 12, 10);
+      eCtx.fillStyle = '#888';
+      eCtx.font = '10px system-ui';
+      eCtx.textAlign = 'left';
+      eCtx.fillText(`${s.label}: ${curE[s.key].toFixed(0)}J`, lx + 16, h - 9);
+      lx += 150;
+    });
+
+    // Time axis label
+    eCtx.fillStyle = '#666';
+    eCtx.font = '10px system-ui';
+    eCtx.textAlign = 'center';
+    eCtx.fillText('Time →', pad.left + plotW / 2, h - 2);
+  }
+
   function drawFrame() {
     ctx.clearRect(0, 0, W, H);
     const renderer = renderers[currentTrick.draw];
@@ -625,6 +784,7 @@
     // Phase timeline
     drawTimeline();
     updateFrameIndicator();
+    drawEnergyDiagram();
   }
 
   function drawTimeline() {
@@ -726,7 +886,8 @@
   };
 
   // Init
-  window.addEventListener('resize', () => { setupCanvas(); drawFrame(); });
+  window.addEventListener('resize', () => { setupCanvas(); setupEnergyCanvas(); drawFrame(); });
   setupCanvas();
+  setupEnergyCanvas();
   selectTrick(TRICKS[0]);
 })();
